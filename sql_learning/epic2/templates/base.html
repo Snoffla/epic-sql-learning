@@ -17,12 +17,18 @@
 			team: '',
 			shirt_or_hat: '',
 			order: '',
+			total_pages: 1,
+			page: 0,
+			old_page: 0,
 
 			async loadPeople() {
+				if (this.old_page == this.page) {this.page = 0}
+				this.old_page = this.page
 				const response = await(await 
-				fetch(`http://127.0.0.1:8000/epic2/api?shirt_or_hat=${this.shirt_or_hat}&team=${this.team}&order=${this.order}`))
+				fetch(`http://127.0.0.1:8000/epic2/api?shirt_or_hat=${this.shirt_or_hat}&team=${this.team}&order=${this.order}&page=${this.page}`))
 				.json();
-				return response;
+				this.total_pages = response['count']
+				return response['people'];
 			},
 
 			setOrder(id){
@@ -67,27 +73,45 @@
 
 			<table class="">
 				<tr class="bg-gray-500 text-white">
-					<th class="border-l border-gray-800 px-2 cursor-pointer" 
-					@click="setOrder('first_name')">First name</th>
-					<th class="border-l border-gray-800 px-2 cursor-pointer"
-					@click="setOrder('last_name')">Last name</th>
-					<th class="border-l border-gray-800 px-2 cursor-pointer"
-					@click="setOrder('shirt_or_hat')">Shirt or Hat?</th>
-					<th class="border-l border-gray-800 px-2 cursor-pointer"
-					@click="setOrder('quiz_points')">Points</th>
-					<th class="border-l border-r border-gray-800 px-2 cursor-pointer"
-					@click="setOrder('team')">Team</th>
+					{%for column in columns%}
+						<th class="border-l border-gray-800 px-2 las:border-r cursor-pointer" 
+						@click="setOrder('{{column.col_id}}')">{{column.display_name}}</th>
+					{%endfor%}
 				</tr>
-				<template x-for="person in loadPeople">
-					<tr class="bg-white">
-						<td class="border-l border-gray-800 px-2" x-text="person.first_name"></td>
-						<td class="border-l border-gray-800 px-2" x-text="person.last_name"></td>
-						<td class="border-l border-gray-800 px-2" x-text="person.shirt_or_hat"></td>
-						<td class="border-l border-gray-800 px-2" x-text="person.quiz_points"></td>
-						<td class="border-l border-r border-gray-800 px-2" x-text="person.team"></td>
+				<template x-for="(person, index) in loadPeople"
+				>
+					<tr class="bg-white hover:bg-green-300 last:border-b border-gray-800"
+
+					x-data="{open: false, person: person
+						
+					}"
+					x-show="open" 
+
+					x-effect="
+					person;
+					open = false;
+					setTimeout(()=>{
+						open = true
+					}, index*10);"
+					        
+					x-transition:enter="transition ease-out duration-300"
+					x-transition:enter-start="opacity-0 scale-90"
+					x-transition:enter-end="opacity-100 scale-100"
+					
+					>
+					
+						{%for column in columns%}
+							<td class="border-l border-gray-800 px-2 last:border-r" x-text="person.{{column.col_id}}"></td>
+						{%endfor%}
 					</tr>
 				</template>
 			</table>
+
+			<div class="text-2xl">
+				<button class="p-2 m-2" @click="page--" x-bind:disabled="page <= 0"><</button>
+				<span x-text="(page+1) + '/' + total_pages"></span>
+				<button class="p-2 m-2" @click="page++" x-bind:disabled="page >= total_pages - 1">></button>
+			</div>
 		</div>
 	</body>
 </html>

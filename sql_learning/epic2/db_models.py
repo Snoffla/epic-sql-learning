@@ -21,7 +21,7 @@ class Person(Base):
     company = Column(Text)
 
     def __repr__(self):
-        return f"Person(id={self.id_number}"
+        return f"Person(id={self.id_number})"
     
     def as_dict(self):
         return {c.name: getattr(self, c.name) for c in self.__table__.columns}
@@ -36,6 +36,9 @@ class State(Base):
 
     def __repr__(self):
         return f"State(name={self.state_name}"
+    
+    def as_dict(self):
+        return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 engine = create_engine('sqlite:///epic2/quizdata.db', echo=True)
 Session = sessionmaker(bind=engine)
