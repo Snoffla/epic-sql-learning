@@ -7,27 +7,45 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<meta http-equiv="X-UA-Compatible" content="ie=edge">
 		{% tailwind_css %}
+		{% load static %}
+		<script defer src="{% static 'js/alpine.js' %}"></script>
 	</head>
 
 	<body class="bg-gray-50 font-serif leading-normal tracking-normal">
-		<div class="container mx-auto">
+		<div class="container mx-auto" 
+		x-data="{
+			team: '',
+			shirt_or_hat: '',
+
+			async loadPeople() {
+				const response = await(await 
+				fetch(`http://127.0.0.1:8000/epic2/api?shirt_or_hat=${this.shirt_or_hat}&team=${this.team}`))
+				.json();
+				return response;
+			}
+		}"
+		x-init="
+"
+		>
 			<form action="" method="get">
 				<fieldset>
 					<legend>Select gift</legend>
 					<div>
-						<input type="radio" id="shirt" name="shirt_or_hat" value="">
+						<input type="radio" id="shirt" name="shirt_or_hat" value="" x-model="shirt_or_hat">
 						<label for="shirt">All</label>
 					</div>
 
 					<div>
 						<input type="radio" id="shirt" name="shirt_or_hat" value="shirt"
-						{%if shirt_or_hat == "shirt"%} checked {%endif%}
+						x-model="shirt_or_hat"
 						>
 						<label for="shirt">Shirt</label>
 					</div>
 
 					<div>
-						<input type="radio" id="hat" name="shirt_or_hat" value="hat">
+						<input type="radio" id="hat" name="shirt_or_hat" value="hat" 
+						x-model="shirt_or_hat"
+						>
 						<label for="hat">Hat</label>
 					</div>
 				</fieldset>
@@ -35,41 +53,33 @@
 				<div>
 					<label for="team">Choose team</label>
 
-					<select name="team" id="team">
+					<select name="team" id="team" x-model="team">
 						<option value="">All</option>
 						{% for team in team_list%}
 							<option value="{{team}}">{{team}}</option>
 						{%endfor%}
 					</select> 
 				</div>
-
-
-
-				<button type="submit" class="bg-green-600 p-2 text-white text-lg font-bold font-sans rounded-lg">Filter</button>
 			</form>
 
-			{% if person_list %}
-				<table>
-					<tr>
-						<th class="border-l border-gray-800">First name</th>
-						<th class="border-l border-gray-800">Last name</th>
-						<th class="border-l border-gray-800">Shirt or Hat?</th>
-						<th class="border-l border-gray-800">Points</th>
-						<th class="border-l border-r border-gray-800">Team</th>
-					</tr>
-				{% for person in person_list %}
+			<table>
+				<tr>
+					<th class="border-l border-gray-800">First name</th>
+					<th class="border-l border-gray-800">Last name</th>
+					<th class="border-l border-gray-800">Shirt or Hat?</th>
+					<th class="border-l border-gray-800">Points</th>
+					<th class="border-l border-r border-gray-800">Team</th>
+				</tr>
+				<template x-for="person in loadPeople">
 					<tr >
-						<td class="border-l border-gray-800">{{person.first_name}}</td>
-						<td class="border-l border-gray-800">{{person.last_name}}</td>
-						<td class="border-l border-gray-800">{{person.shirt_or_hat}}</td>
-						<td class="border-l border-gray-800">{{person.quiz_points}}</td>
-						<td class="border-l border-r border-gray-800">{{person.team}}</td>
+						<td class="border-l border-gray-800" x-text="person.first_name"></td>
+						<td class="border-l border-gray-800" x-text="person.last_name"></td>
+						<td class="border-l border-gray-800" x-text="person.shirt_or_hat"></td>
+						<td class="border-l border-gray-800" x-text="person.quiz_points"></td>
+						<td class="border-l border-r border-gray-800" x-text="person.team"></td>
 					</tr>
-				{% endfor %}
-				</table>
-			{% else %}
-				<p>No people found</p>
-			{% endif %}
+				</template>
+			</table>
 		</div>
 	</body>
 </html>
