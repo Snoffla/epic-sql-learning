@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.template import loader
 from django.http import HttpResponse
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, desc
 from sqlalchemy.orm import sessionmaker
 from epic2.db_models import *
 
@@ -38,16 +38,24 @@ def api(request):
     session = get_db_session()
     shirt_or_hat = request.GET.get('shirt_or_hat')
     team = request.GET.get('team')
+    order = request.GET.get('order')
 
-    query = session.query(Person).order_by(Person.first_name)
+    query = session.query(Person)
 
     if(shirt_or_hat):
         query = query.filter(Person.shirt_or_hat == shirt_or_hat)
     
     if(team):
-        query = query.filter(Person.team == team)
+        query = query.filter(getattr(Person, "team") == team)
+    
+    print(order)
+
+    if(order):
+        if order[0] == '-':
+            query = query.order_by(desc(getattr(Person, order[1:])))
+        else:
+            query = query.order_by(getattr(Person, order))
     
     people = list(query)
-    print(people[0].as_dict())
 
     return JsonResponse([person.as_dict() for person in people], safe=False)

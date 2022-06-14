@@ -11,24 +11,27 @@
 		<script defer src="{% static 'js/alpine.js' %}"></script>
 	</head>
 
-	<body class="bg-gray-50 font-serif leading-normal tracking-normal">
-		<div class="container mx-auto" 
+	<body class="bg-gray-50 font-serif leading-normal tracking-normal ">
+		<div class="w-full flex flex-col justify-center items-center" 
 		x-data="{
 			team: '',
 			shirt_or_hat: '',
+			order: '',
 
 			async loadPeople() {
 				const response = await(await 
-				fetch(`http://127.0.0.1:8000/epic2/api?shirt_or_hat=${this.shirt_or_hat}&team=${this.team}`))
+				fetch(`http://127.0.0.1:8000/epic2/api?shirt_or_hat=${this.shirt_or_hat}&team=${this.team}&order=${this.order}`))
 				.json();
 				return response;
+			},
+
+			setOrder(id){
+				this.order = this.order === id ? '-'+id : id
 			}
 		}"
-		x-init="
-"
 		>
-			<form action="" method="get">
-				<fieldset>
+			<form class="flex gap-2 p-2 w-full bg-gray-300 items-center justify-center sticky top-0">
+				<fieldset class="flex gap-2">
 					<legend>Select gift</legend>
 					<div>
 						<input type="radio" id="shirt" name="shirt_or_hat" value="" x-model="shirt_or_hat">
@@ -62,21 +65,26 @@
 				</div>
 			</form>
 
-			<table>
-				<tr>
-					<th class="border-l border-gray-800">First name</th>
-					<th class="border-l border-gray-800">Last name</th>
-					<th class="border-l border-gray-800">Shirt or Hat?</th>
-					<th class="border-l border-gray-800">Points</th>
-					<th class="border-l border-r border-gray-800">Team</th>
+			<table class="">
+				<tr class="bg-gray-500 text-white">
+					<th class="border-l border-gray-800 px-2 cursor-pointer" 
+					@click="setOrder('first_name')">First name</th>
+					<th class="border-l border-gray-800 px-2 cursor-pointer"
+					@click="setOrder('last_name')">Last name</th>
+					<th class="border-l border-gray-800 px-2 cursor-pointer"
+					@click="setOrder('shirt_or_hat')">Shirt or Hat?</th>
+					<th class="border-l border-gray-800 px-2 cursor-pointer"
+					@click="setOrder('quiz_points')">Points</th>
+					<th class="border-l border-r border-gray-800 px-2 cursor-pointer"
+					@click="setOrder('team')">Team</th>
 				</tr>
 				<template x-for="person in loadPeople">
-					<tr >
-						<td class="border-l border-gray-800" x-text="person.first_name"></td>
-						<td class="border-l border-gray-800" x-text="person.last_name"></td>
-						<td class="border-l border-gray-800" x-text="person.shirt_or_hat"></td>
-						<td class="border-l border-gray-800" x-text="person.quiz_points"></td>
-						<td class="border-l border-r border-gray-800" x-text="person.team"></td>
+					<tr class="bg-white">
+						<td class="border-l border-gray-800 px-2" x-text="person.first_name"></td>
+						<td class="border-l border-gray-800 px-2" x-text="person.last_name"></td>
+						<td class="border-l border-gray-800 px-2" x-text="person.shirt_or_hat"></td>
+						<td class="border-l border-gray-800 px-2" x-text="person.quiz_points"></td>
+						<td class="border-l border-r border-gray-800 px-2" x-text="person.team"></td>
 					</tr>
 				</template>
 			</table>
